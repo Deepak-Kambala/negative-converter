@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Negative Converter</title>
+<style>
+    /* Global Styles */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+        background: linear-gradient(135deg, #f0fdf4, #ecfdf5, #d1fae5);
+        margin: 0;
+        padding: 60px 20px;
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        color: #1f2937;
+    }
+
+    /* Animated Background Elements */
+    .background-animations {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .blob {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, rgba(16,185,129,0.18), transparent 70%);
+        filter: blur(12px);
+        opacity: 0.4;
+        animation: blob-float 35s infinite ease-in-out, blob-pulse 18s infinite ease-in-out;
+    }
+
+    .blob:nth-child(1) { width: 420px; height: 420px; top: 10%; left: -15%; animation-duration: 42s, 19s; animation-delay: 0s, -5s; }
+    .blob:nth-child(2) { width: 520px; height: 520px; bottom: 15%; right: -20%; animation-duration: 48s, 22s; animation-delay: -8s, -12s; }
+    .blob:nth-child(3) { width: 360px; height: 360px; top: 45%; left: 20%; animation-duration: 38s, 16s; animation-delay: -15s, -3s; }
+    .blob:nth-child(4) { width: 480px; height: 480px; bottom: 30%; left: -10%; animation-duration: 52s, 20s; animation-delay: -22s, -9s; }
+
+    @keyframes blob-float {
+        0% { transform: translate(0,0) rotate(0deg); }
+        25% { transform: translate(120px,-80px) rotate(45deg); }
+        50% { transform: translate(-60px,140px) rotate(90deg); }
+        75% { transform: translate(80px,-100px) rotate(135deg); }
+        100% { transform: translate(0,0) rotate(180deg); }
+    }
+
+    @keyframes blob-pulse {
+        0%, 100% { opacity: 0.35; transform: scale(1); }
+        50% { opacity: 0.65; transform: scale(1.15); }
+    }
+
+    h1 {
+        color: #065f46;
+        font-size: 2.8rem;
+        margin-bottom: 40px;
+        font-weight: 700;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Form & Buttons Container */
+    .upload-container {
+        margin-bottom: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 2;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .file-label,
+    input[type="submit"] {
+        padding: 14px 38px;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.35s ease;
+        box-shadow: 0 6px 20px rgba(34,197,94,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .file-label { background: #10b981; }
+    input[type="submit"] { background: #059669; }
+
+    .file-label:hover,
+    input[type="submit"]:hover {
+        background: #047857;
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(5,150,105,0.4);
+    }
+
+    /* Results Section */
+    .results {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .image-card {
+        background: rgba(255,255,255,0.94);
+        padding: 22px 26px;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1),
+                    0 0 0 1px rgba(255,255,255,0.6) inset;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s ease;
+        width: 340px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(16,185,129,0.12);
+    }
+
+    .image-card:hover { transform: translateY(-12px); box-shadow: 0 20px 45px rgba(0,0,0,0.14); }
+    .image-card img { max-width: 100%; border-radius: 14px; transition: all 0.5s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .image-card:hover img { transform: scale(1.05); }
+    .image-card p { margin: 12px 0 18px; color: #065f46; font-weight: 600; font-size: 1.15rem; }
+
+    .button {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 12px 34px;
+        background: #10b981;
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.35s ease;
+        box-shadow: 0 5px 18px rgba(16,185,129,0.25);
+    }
+
+    .button:hover { background: #059669; transform: translateY(-3px); box-shadow: 0 12px 28px rgba(5,150,105,0.4); }
+
+    /* Fade-in animation */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h1, .upload-container, .results { animation: fadeInUp 0.9s ease-out forwards; }
+    .results > div:nth-child(1) { animation-delay: 0.15s; }
+    .results > div:nth-child(2) { animation-delay: 0.35s; }
+</style>
+</head>
+<body>
+
+<div class="background-animations">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+</div>
+
+<h1>Image Negative Converter</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="upload-container">
+        <label for="image" class="file-label">Choose Image</label>
+        <input type="file" name="image" id="image" accept="image/*" required>
+        <input type="submit" value="Convert to Negative">
+    </div>
+</form>
+
+{% if original and negative %}
+<div class="results">
+    <div class="image-card">
+        <p>Original Image</p>
+        <img src="{{ original }}" alt="Original">
+    </div>
+    <div class="image-card">
+        <p>Negative Image</p>
+        <img src="{{ negative }}" alt="Negative">
+        <!-- Download button in-memory -->
+        <a class="button" href="{{ negative }}" download="negative.png">Download Negative</a>
+    </div>
+</div>
+{% endif %}
+
+</body>
+</html>
